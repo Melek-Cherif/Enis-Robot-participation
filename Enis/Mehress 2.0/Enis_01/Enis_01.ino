@@ -9,10 +9,20 @@
 #define NORMAL_M 180
 #define SLOW_M 120
 
-const int S1_IN, S2_IN, S3_IN, S4_IN, S5_IN;
-int sensReadingR1,sensReadingR2,sensReadingL1,sensReadingL2, sensorReadingM; 
+#define BLACK   0
+#define WHITE   1
 
-void setup() {
+
+const int S1_PIN = 12;
+const int S2_PIN = 11; 
+const int S3_PIN = 2;
+const int S4_PIN = 9;
+const int S5_PIN = 10;
+const int offset = 20;
+int sensorReadingR1,sensorReadingR2,sensorReadingL1,sensorReadingL2, sensorReadingM; 
+
+void setup() 
+{
   // put your setup code here, to run once:
   pinMode(In1, OUTPUT);
   pinMode(In2, OUTPUT);
@@ -25,20 +35,13 @@ void setup() {
 
 void Forward (int speed){
   analogWrite(Enable_A, speed);
-  analogWrite(Enable_B, speed);
+  analogWrite(Enable_B, speed + offset);
   digitalWrite(In1,HIGH);
   digitalWrite(In2,LOW);
-  digitalWrite(In3,HIGH);
-  digitalWrite(In4,LOW);
-}
-void Reverse (int speed){
-  analogWrite(Enable_A, speed);
-  analogWrite(Enable_B, speed);
-  digitalWrite(In1,LOW);
-  digitalWrite(In2,HIGH);
   digitalWrite(In3,LOW);
   digitalWrite(In4,HIGH);
 }
+
 void Right (int speed){
   analogWrite(Enable_A, speed);
   analogWrite(Enable_B, speed);
@@ -60,16 +63,16 @@ void Right1 (int speed){
   analogWrite(Enable_B, speed);
   digitalWrite(In1,HIGH);
   digitalWrite(In2,LOW);
-  digitalWrite(In3,LOW);
-  digitalWrite(In4,HIGH);
+  digitalWrite(In3,HIGH);
+  digitalWrite(In4,LOW);
 }
 void Left1 (int speed){
   analogWrite(Enable_A, speed);
   analogWrite(Enable_B, speed);
   digitalWrite(In1,LOW);
   digitalWrite(In2,HIGH);
-  digitalWrite(In3,HIGH);
-  digitalWrite(In4,LOW);
+  digitalWrite(In3,LOW);
+  digitalWrite(In4,HIGH);
 }
 void Stop (int speed){
   analogWrite(Enable_A, speed);
@@ -82,13 +85,35 @@ void Stop (int speed){
 
 void SensorReading()
 {
-  sensReadingR1 = digitalRead(S1_IN, INPUT);
-  sensReadingR2 = digitalRead(S2_IN, INPUT);
-  sensReadingL1 = digitalRead(S3_IN, INPUT);
-  sensReadingL2 = digitalRead(S4_IN, INPUT);
-  sensReadingM = digitalRead(S5_IN, INPUT);
+  sensorReadingL2 = digitalRead(S1_PIN);
+  sensorReadingL1 = digitalRead(S2_PIN);
+  sensorReadingR1 = digitalRead(S3_PIN);
+  sensorReadingR2 = digitalRead(S4_PIN);
+  sensorReadingM = digitalRead(S5_PIN);
 }
 void loop() {
   // put your main code here, to run repeatedly:
   SensorReading();
+
+  if(sensorReadingR2 == BLACK && sensorReadingL2 == WHITE)
+  {
+    Right1(180);
+    delay(4);
+  } 
+  else if(sensorReadingR2 == WHITE && sensorReadingL2 == BLACK)
+  {
+    Left1(180);
+    delay(4);
+  }
+  else if (sensorReadingR2 == BLACK && sensorReadingL2 == BLACK) 
+  {
+    Right1(180);
+    delay(40);
+    Forward(180);
+    delay(20);
+  }
+  else 
+  {
+    Forward(180);
+  }
 }
