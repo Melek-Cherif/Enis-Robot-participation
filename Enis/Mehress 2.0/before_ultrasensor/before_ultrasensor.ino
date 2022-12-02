@@ -6,7 +6,7 @@
 #define In4       8
 
 #define MAX_M 255
-#define NORMAL_SPEED 180
+#define NORMAL_M 180
 #define SLOW_M 120
 
 #define BLACK   0
@@ -18,7 +18,7 @@ const int S3_PIN = 2;
 const int S4_PIN = 9;
 const int S5_PIN = 10;
 
-const int offset = 20;
+const int offset = 40;
 int mode, blackBande;
 int sensorReadingR1,sensorReadingR2,sensorReadingL1,sensorReadingL2, sensorReadingM; 
 bool switcher;
@@ -32,7 +32,13 @@ void setup()
   pinMode(In4, OUTPUT);
   pinMode(Enable_A, OUTPUT);
   pinMode(Enable_B, OUTPUT);
-  pinMode(13, OUTPUT);
+
+  pinMode(S1_PIN, INPUT);
+  pinMode(S2_PIN, INPUT);
+  pinMode(S3_PIN, INPUT);
+  pinMode(S4_PIN, INPUT);
+  pinMode(S5_PIN, INPUT);
+  
   Serial.begin(9600);
   mode = 1;
   blackBande = 0;
@@ -100,32 +106,36 @@ void SensorReading()
 
 void lineFollower1()
 {
-    if(sensorReadingL2 == BLACK && sensorReadingL1 == BLACK && sensorReadingM == BLACK && sensorReadingR2 == WHITE)
+  if (millis() > 3000)
   {
-    Left1(NORMAL_SPEED);
+    Right1(180);
+  }
+  else if(sensorReadingL2 == BLACK && sensorReadingL1 == BLACK && sensorReadingM == BLACK && sensorReadingR2 == WHITE)
+  {
+    Left1(200);
     delay(20);
   }
   
   else if(sensorReadingR2 == BLACK && sensorReadingL2 == WHITE)
   {
-    Right1(NORMAL_SPEED);
+    Right1(180);
     delay(4);
   } 
   else if(sensorReadingR2 == WHITE && sensorReadingL2 == BLACK)
   {
-    Left1(NORMAL_SPEED);
+    Left1(180);
     delay(4);
   }
   else if (sensorReadingR2 == BLACK && sensorReadingL2 == BLACK) 
   {
-    Right1(NORMAL_SPEED);
+    Right1(180);
     delay(30);
-    Forward(NORMAL_SPEED);
+    Forward(180);
     delay(15);
   }
   else 
   {
-    Forward(NORMAL_SPEED);
+    Forward(180);
   }
 }
 
@@ -136,7 +146,7 @@ void lineFollower2()
   {
     if (blackBande < 2)
     {
-      Forward(NORMAL_SPEED);
+      Forward(180);
       delay(350);
       blackBande ++;
       Stop(10);
@@ -146,13 +156,13 @@ void lineFollower2()
     {
       if (switcher == false)
       {
-        Right1(NORMAL_SPEED);
+        Right1(180);
         delay(400);
         switcher = true;
       }
       else 
       {
-        Forward(NORMAL_SPEED);
+        Forward(180);
         delay(50);
         switcher = false;
       }
@@ -163,65 +173,65 @@ void lineFollower2()
   {
     if (blackBande < 2)
     {
-      Left1(NORMAL_SPEED);
+      Left1(180);
       delay(5);
     }
     else if (blackBande == 2) 
     {
-      Left1(NORMAL_SPEED);
+      Left1(180);
       delay(150);
       blackBande ++;
     }
     else 
     {
-      Left1(NORMAL_SPEED);
+      Left1(180);
     }
   }
   else if(sensorReadingR2 == BLACK && sensorReadingR1 == BLACK &&
   sensorReadingM == BLACK && sensorReadingL1 == BLACK && sensorReadingL2 == WHITE)
   {
-    Right1(NORMAL_SPEED);
+    Right1(180);
     delay(150);
   }
   else if(sensorReadingR2 == BLACK && sensorReadingL1 == WHITE && sensorReadingL2 == WHITE)
   {
-    Right1(NORMAL_SPEED);
+    Right1(180);
     delay(2);
   }
   
   else if(sensorReadingR2 == WHITE && sensorReadingR1 == WHITE  && sensorReadingL2 == BLACK)
   {
-    Left1(NORMAL_SPEED);
+    Left1(180);
     delay(2);
   }
+
   else 
   {
-    Forward(NORMAL_SPEED);
+    Forward(180);
   }
 }
-void loop() 
-{
+void loop() {
   // put your main code here, to run repeatedly:
+  
   SensorReading();
 
-  if (millis() >= 54000 && millis() < 70000 && mode == 1)
+  if (millis() >= 50000 && mode == 1)
   {
     Stop(10);
     delay(5000);
     mode ++;
+    Serial.println("mode 2");
   }
-  else if(millis() >= 115000 && mode == 2)
+  else if(millis() >= 95000 && mode == 2 && sensorReadingR2 == WHITE &&
+  sensorReadingR1 == WHITE && sensorReadingM == WHITE && 
+  sensorReadingL1 == WHITE && sensorReadingL2 == WHITE)
   {
     Stop(10);
-    delay(500);
+    delay(1000);
     mode ++;
   }
   
-  if (millis()< 3000 && mode == 1)
-  {
-    Forward(150);
-  }
-  else if (mode == 1)
+  if (mode == 1)
   {
     lineFollower1();
   }

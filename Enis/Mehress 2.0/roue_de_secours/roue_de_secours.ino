@@ -1,4 +1,4 @@
-#define Enable_A  6
+$#define Enable_A  6
 #define Enable_B  5
 #define In1       3
 #define In2       4
@@ -204,13 +204,13 @@ void loop()
   // put your main code here, to run repeatedly:
   SensorReading();
 
-  if (millis() >= 54000 && millis() < 70000 && mode == 1)
+  if (millis() >= 60000 && millis() < 70000 && mode == 1)
   {
     Stop(10);
-    delay(5000);
+    delay(10000);
     mode ++;
   }
-  else if(millis() >= 115000 && mode == 2)
+  else if(millis() >= 125000 && mode == 2)
   {
     Stop(10);
     delay(500);

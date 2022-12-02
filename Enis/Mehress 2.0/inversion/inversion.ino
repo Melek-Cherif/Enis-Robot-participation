@@ -12,16 +12,16 @@
 #define BLACK   0
 #define WHITE   1
 
-
 const int S1_PIN = 12;
 const int S2_PIN = 11; 
 const int S3_PIN = 2;
 const int S4_PIN = 9;
 const int S5_PIN = 10;
-const int offset = 30;
-int blackBande;
+
+const int offset = 20;
+int mode, blackBande;
 int sensorReadingR1,sensorReadingR2,sensorReadingL1,sensorReadingL2, sensorReadingM; 
-bool Turn, switcher;
+bool switcher;
 
 void setup() 
 {
@@ -32,9 +32,11 @@ void setup()
   pinMode(In4, OUTPUT);
   pinMode(Enable_A, OUTPUT);
   pinMode(Enable_B, OUTPUT);
+  pinMode(13, OUTPUT);
   Serial.begin(9600);
+  mode = 2;
   blackBande = 0;
-  switcher = false;
+  switcher = true;
 }
 
 void Forward (int speed){
@@ -44,15 +46,6 @@ void Forward (int speed){
   digitalWrite(In2,LOW);
   digitalWrite(In3,LOW);
   digitalWrite(In4,HIGH);
-}
-
-void Backward (int speed){
-  analogWrite(Enable_A, speed);
-  analogWrite(Enable_B, speed + offset);
-  digitalWrite(In2,HIGH);
-  digitalWrite(In1,LOW);
-  digitalWrite(In4,LOW);
-  digitalWrite(In3,HIGH);
 }
 
 void Right (int speed){
@@ -100,65 +93,43 @@ void SensorReading()
 {
   sensorReadingL2 = digitalRead(S1_PIN);
   sensorReadingL1 = digitalRead(S2_PIN);
-  sensorReadingR1 = digitalRead(S3_PIN);
-  sensorReadingR2 = digitalRead(S4_PIN);
-  sensorReadingM = digitalRead(S5_PIN);
+  sensorReadingM  = digitalRead(S3_PIN);
+  sensorReadingR1 = digitalRead(S4_PIN);
+  sensorReadingR2 = digitalRead(S5_PIN);
 }
-void loop() 
-{
+
+void loop() {
+  // put your main code here, to run repeatedly:
   SensorReading();
-  if (sensorReadingL2 == BLACK && sensorReadingL1 == BLACK && sensorReadingR1 == BLACK &&
-  sensorReadingR2 == BLACK) 
+
+  if(sensorReadingR2 == WHITE && sensorReadingR1 == BLACK &&
+  sensorReadingL1 == WHITE && sensorReadingL2 == BLACK)
   {
-    if (blackBande < 3 && blackBande > 1)
+    if(Turn == false)
     {
-      Forward(180);
-      delay(350);
-      blackBande ++;
-      Stop(10);
-      delay(1500);
-    }
-    else if(blackBande == 0)
-    {
-      Right1(180);
-      delay(400);
+      Right1(150);
+      delay(200);
+      Turn = true;
     }
     else 
     {
-      if (switcher == false)
-      {
-        Right1(180);
-        delay(400);
-        switcher = true;
-      }
-      else 
-      {
-        Forward(180);
-        delay(50);
-        switcher = false;
-      }
+      Left(150);
+      delay(5);
     }
   }
-  else if(sensorReadingR2 == BLACK && sensorReadingR1 == BLACK &&
-  sensorReadingM == BLACK && sensorReadingL1 == BLACK && sensorReadingL2 == WHITE)
+  else if(sensorReadingR2 == WHITE && sensorReadingL2 == BLACK)
   {
-    Right1(180);
-    delay(150);
+    Right1(150);
+    delay(4);
   }
-  else if(sensorReadingR2 == BLACK && sensorReadingL1 == WHITE && sensorReadingL2 == WHITE)
+  else if(sensorReadingR2 == BLACK && sensorReadingL2 == WHITE)
   {
-    Right1(180);
-    delay(2);
+    Left1(150);
+    delay(4);    
   }
-  
-  else if(sensorReadingR2 == WHITE && sensorReadingR1 == WHITE  && sensorReadingL2 == BLACK)
-  {
-    Left1(180);
-    delay(2);
-  }
-
   else 
   {
-    Forward(180);
+    Forward(150);
+    delay(4);
   }
 }

@@ -18,10 +18,17 @@ const int S2_PIN = 11;
 const int S3_PIN = 2;
 const int S4_PIN = 9;
 const int S5_PIN = 10;
-const int offset = 20;
+const int offset = 40;
+const int trigPin = 13
+;
+const int echoPin = A2 ;
+
 int blackBande;
-int sensorReadingR1,sensorReadingR2,sensorReadingL1,sensorReadingL2, sensorReadingM; 
-bool Turn;
+int sensorReadingR1,sensorReadingR2,sensorReadingL1;
+int sensorReadingL2, sensorReadingM; 
+int turnRight, turnLeft;
+int duration, distance;
+bool Turn, switcher;
 
 void setup() 
 {
@@ -32,8 +39,21 @@ void setup()
   pinMode(In4, OUTPUT);
   pinMode(Enable_A, OUTPUT);
   pinMode(Enable_B, OUTPUT);
+
+  pinMode(S1_PIN, INPUT);
+  pinMode(S2_PIN, INPUT);
+  pinMode(S3_PIN, INPUT);
+  pinMode(S4_PIN, INPUT);
+  pinMode(S5_PIN, INPUT);
+  
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  
   Serial.begin(9600);
+  turnRight = 0;
+  turnLeft = 0;
   blackBande = 0;
+  switcher = true;
 }
 
 void Forward (int speed){
@@ -103,41 +123,47 @@ void SensorReading()
   sensorReadingR1 = digitalRead(S4_PIN);
   sensorReadingR2 = digitalRead(S5_PIN);
 }
+
+void calculeDistance()
+{
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin on HIGH state for 10 micro seconds
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(echoPin, HIGH);
+  // Calculating the distance
+  distance = duration * 0.034 / 2;
+}
 void loop() {
   // put your main code here, to run repeatedly:
   SensorReading();
 
-  if (sensorReadingL2 == BLACK && sensorReadingL1 == BLACK && sensorReadingR1 == BLACK &&
-  sensorReadingR2 == BLACK && sensorReadingM == BLACK && (blackBande < 2)) 
+  calculeDistance();
+  Serial.println(distance);
+  
+  if(distance > 30 && distance < 150)
   {
     Forward(180);
-    delay(350);
-    blackBande ++;
-  } 
-  else if(sensorReadingR2 == WHITE && sensorReadingR1 == WHITE &&
-  sensorReadingM == BLACK && sensorReadingL1 == BLACK && sensorReadingL2 == BLACK)
-  {
-    Left(180);
-    delay(150);
   }
-  else if(sensorReadingR2 == BLACK && sensorReadingR1 == BLACK &&
-  sensorReadingM == BLACK && sensorReadingL1 == WHITE && sensorReadingL2 == WHITE)
+  else if (distance < 25)
   {
-    Right1(180);
-    delay(150);
-  }
-  else if(sensorReadingR2 == WHITE && sensorReadingR1 == BLACK && sensorReadingL1 == WHITE && sensorReadingL2 == WHITE)
-  {
-    Right1(180);
-    delay(2);
-  }
-  
-  else if(sensorReadingR1 == WHITE && sensorReadingR1 == WHITE && sensorReadingL1 == BLACK && sensorReadingL2 == WHITE)
-  {
-    Left1(180);
-    delay(2);
-  }
-
+    if(turnRight == 0 || turnRight >= 3)
+    {
+      Right1(150);
+      delay(700);
+      turnRight++;
+    }
+    else 
+    {
+      Left1(150);
+      delay(500);
+      turnLeft++;
+      turnRight ++;
+    }
+  }  
   else 
   {
     Forward(180);
